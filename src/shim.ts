@@ -12,14 +12,10 @@ export class SlackShim {
   constructor(public cli: CLI, public token?: string) {}
 
   async execute(context: SlackCommandContext): Promise<object> {
-    let {token, command, text} = context;
+    let {token, text} = context;
 
     if (this.token && token !== this.token) {
       return {error: 'Permission denied'};
-    }
-
-    if (command.startsWith('/')) {
-      command = command.slice(1);
     }
 
     text = text.replace(/[<>|]/g, '\\$&');
@@ -27,7 +23,7 @@ export class SlackShim {
     let args = ShellWords.split(text);
 
     try {
-      let result = await this.cli.execute([command, ...args], context);
+      let result = await this.cli.execute([...args], context);
 
       if (isPrintable(result)) {
         let printResult = new PrintResult();
